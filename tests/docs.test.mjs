@@ -9,6 +9,7 @@ test("README is bilingual, emoji-free, and documents both installers", async () 
   assert.match(readme, /npx skills add Wholiver\/design-codex-theme/);
   assert.match(readme, /skills\.sh\/Wholiver\/design-codex-theme\/design-codex-theme/);
   assert.doesNotMatch(readme, /\p{Extended_Pictographic}/u);
+  assert.doesNotMatch(readme, /hei.?ge|skin studio|theme center|主题中心|upstream|上游/i);
 });
 
 test("skill package stays independent from upstream runtime", async () => {
