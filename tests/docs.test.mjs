@@ -13,7 +13,7 @@ test("README is bilingual, emoji-free, and documents both installers", async () 
 
 test("skill package stays independent from upstream runtime", async () => {
   const skill = await readFile("SKILL.md", "utf8");
-  assert.match(skill, /^---\nname: design-codex-theme\ndescription:/);
+  assert.match(skill, /^---\r?\nname: design-codex-theme\r?\ndescription:/);
   assert.doesNotMatch(skill, /git clone|bootstrap-runtime|install-theme\.mjs/);
   const cli = await readFile("scripts/theme-cli.mjs", "utf8");
   assert.doesNotMatch(cli, /github\.com|git clone|theme center/i);
