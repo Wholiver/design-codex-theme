@@ -1,0 +1,28 @@
+name: Validate skill
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm run build
+      - name: Check Windows PowerShell 5.1 entrypoint
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: ./scripts/windows/windows-task.ps1 -Action Describe -Root "$env:RUNNER_TEMP/中文 path" -NodePath "$env:ProgramFiles/nodejs/node.exe" -ControllerPath "$env:RUNNER_TEMP/中文 path/controller.mjs" -Port 9333
+      - name: Check PowerShell 7 entrypoint
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./scripts/windows/windows-task.ps1 -Action Describe -Root "$env:RUNNER_TEMP/中文 path" -NodePath "$env:ProgramFiles/nodejs/node.exe" -ControllerPath "$env:RUNNER_TEMP/中文 path/controller.mjs" -Port 9333

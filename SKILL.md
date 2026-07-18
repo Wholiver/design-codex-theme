@@ -1,67 +1,83 @@
 ---
 name: design-codex-theme
-description: Design, generate, install, apply, verify, or restore custom Codex Desktop appearance themes from a one-sentence visual brief or a supplied image. Use when users ask to reskin Codex, create a Codex background/theme/skin, turn an image into a Codex theme, install a generated theme, adjust theme colors or light/dark appearance, or return Codex to its native appearance on macOS or Windows.
+description: Design, generate, install, apply, switch, inspect, remove, restore, or uninstall custom Codex Desktop appearance themes from a one-sentence visual brief. Use for Codex themes, skins, backgrounds, colors, typography, panels, buttons, UI appearance, saved theme libraries, returning Codex to its default look, or diagnosing theme installation on macOS and Windows.
 ---
 
 # Design Codex Theme
 
-Turn a short visual brief into an installed Codex Desktop theme. Use HeiGe Codex Skin Studio as CDP runtime; never modify Codex `app.asar`, binaries, signatures, or packaged resources.
+Turn a short visual brief into a complete local Codex Desktop theme, then install and verify it. This skill owns a small local injector; never install, clone, or invoke HeiGe Codex Skin Studio.
 
-## Workflow
+## Choose workflow
 
-1. Infer complete theme spec from user sentence. Do not ask about fields that can be chosen safely:
-   - concise theme name
-   - `light`, `dark`, or `system` appearance
-   - accent, secondary, surface, and text hex colors
-   - hero-image concept and focal point
-2. Read [references/design-guide.md](references/design-guide.md). Read [references/runtime.md](references/runtime.md) before installing, applying, diagnosing, or restoring.
-3. Obtain hero image:
-   - If user supplied image, inspect it first and use its absolute local path.
-   - Otherwise announce that this skill needs a hero image, then invoke available `$imagegen` skill / gpt-image-2 image-generation tool directly. Do not stop for confirmation.
-   - Request 16:9 desktop wallpaper, ideally 2560x1440; no text, watermark, logo, or baked-in UI. Keep main subject on right third and left/center visually quiet.
-   - Inspect generated result. If safe area, contrast, or unwanted text fails, edit/regenerate once with image-generation tool. Do not use shell/Python as image editor.
-4. Select accessible palette. Ensure surface/text contrast is at least 4.5:1. Prefer colors visibly present in image unless user specified exact colors.
-5. Before applying, tell user Codex may close and reopen; current tasks should be saved. This is an update, not a confirmation gate.
-6. Resolve `SKILL_ROOT` as absolute directory containing this `SKILL.md`, then run installer with absolute image path:
+- New theme or redesign: follow **Create and install**.
+- Switch to saved theme: run `apply <theme-id>`, then `status --json`.
+- List saved themes: run `list --json`.
+- Inspect installation: run `status --json`; use `doctor --json` for failures.
+- Restore official Codex appearance: follow **Restore**.
+- Remove saved inactive theme: run `remove <theme-id>`.
+- Delete runtime and every saved theme only after explicit purge request: run `uninstall --purge`.
+
+Run commands from this skill directory:
 
 ```bash
-node "$SKILL_ROOT/scripts/install-theme.mjs" \
-  --image "/absolute/path/hero.png" \
-  --name "Theme Name" \
-  --appearance dark \
-  --accent "#8b5cf6" \
-  --secondary "#22d3ee" \
-  --surface "#111827" \
-  --text "#f8fafc" \
-  --preview-focus "72,42" \
-  --thumbnail-focus "72,42"
+node scripts/theme-cli.mjs <command>
 ```
 
-On Windows, invoke same `.mjs` file with Node 22+ and Windows paths. Script bootstraps pinned, tested runtime when absent, creates formal distributable theme, patches validated metadata, then uses platform-specific stable apply entry.
+## Create and install
 
-7. Verify using read-only status command from [references/runtime.md](references/runtime.md). Never use apply/restart as status check.
-8. Report theme name, ID, appearance, palette, installed path, apply result, and status. Show generated hero image when useful.
+1. Read [references/design-guide.md](references/design-guide.md) and [references/theme-schema.md](references/theme-schema.md).
+2. Infer name, appearance, palette, typography, shape, effects, and composition from user's sentence. Do not ask design questions unless requirements conflict.
+3. Decide whether artwork is necessary:
+   - For characters, scenery, illustration, photography, branded art, or a specific visual subject, invoke Codex image generation with gpt-image-2. Use `$imagegen`/image generation tool; never draw substitute art with Python.
+   - For solid, gradient, paper, glass, grid, terminal, or other procedural styles, use structured theme colors without generating an image.
+4. Create temporary theme directory containing `theme.json` plus only referenced PNG, JPEG, or WebP assets. Never place generated files inside Codex application bundle.
+5. Validate without mutation:
 
-## Intent rules
+```bash
+node scripts/theme-cli.mjs install --theme <theme-directory> --dry-run
+```
 
-- “Design/install/make a theme”: complete design, image generation when needed, installation, application, and verification.
-- “Preview/plan only”: add `--dry-run`; do not bootstrap, install, apply, or restart.
-- “Install but do not apply”: add `--no-apply`.
-- “Change colors”: create replacement from same image/name with new palette; script uses upstream transactional publishing.
-- “Native/restore/undo”: use platform restore command in [references/runtime.md](references/runtime.md), warn about restart, then run status.
-- “Status/check”: run only status command.
+6. If user explicitly requested preview, generation, or validation only, report dry-run result and stop here. Otherwise tell user Codex will restart once and continue immediately without requesting another design confirmation:
+
+```bash
+node scripts/theme-cli.mjs install --theme <theme-directory> --restart
+```
+
+7. After Codex returns, verify:
+
+```bash
+node scripts/theme-cli.mjs status --json
+```
+
+Success requires matching `activeTheme` and `verified: true`. If restart interrupts current task, installed controller finishes injection and records result; inspect it on next invocation.
+
+## Saved themes
+
+Use exact IDs returned by `list --json`.
+
+```bash
+node scripts/theme-cli.mjs apply <theme-id>
+node scripts/theme-cli.mjs remove <inactive-theme-id>
+```
+
+Applying while Codex already exposes local CDP is immediate. Otherwise installed controller performs one safe restart and reapplies theme.
+
+## Restore
+
+Tell user Codex will restart, then run:
+
+```bash
+node scripts/theme-cli.mjs restore --restart
+```
+
+This unregisters background controller, removes injected DOM/CSS, and preserves saved themes. Do not use `uninstall --purge` unless user explicitly asks to delete everything.
 
 ## Guardrails
 
-- Support macOS and Windows only. State upstream Windows Store/MSIX real-device support remains less proven than macOS.
-- Require local regular PNG, JPG, JPEG, or WebP under 8 MB. Never upload private images to public hosting.
-- Keep CDP port on loopback default `9341`; do not expose it to LAN/public interfaces.
-- Reuse installed runtime when valid. Do not update/refresh it unless requested or diagnosis proves incompatibility.
-- Preserve source image. Theme installer copies it into theme store.
-- Do not install optional pets, unrelated presets, startup persistence, or other extras unless requested.
-- If image-generation tool is unavailable and no image exists, ask user to attach one; do not substitute an internet image without permission.
-
-## Scripts
-
-- `scripts/install-theme.mjs`: validate request, ensure runtime, create theme, apply palette/appearance/focus metadata, validate, optionally apply.
-- `scripts/bootstrap-runtime.mjs`: install tested HeiGe runtime without applying a theme.
+- Support macOS and Windows only. Require Node.js 22 or newer.
+- Connect only to `127.0.0.1`; inject only renderer URL `app://-/index.html`.
+- Never patch Codex application files, download a theme center, or contact a theme marketplace.
+- Treat another Codex remote-debugging controller as conflict. Report detected service/task and ask before migration; never delete unowned services.
+- Keep all persistent data under `~/.codex/design-codex-theme/`; platform startup registration is described in [references/runtime.md](references/runtime.md).
+- Keep asset paths relative, assets under 12 MB, and theme IDs lowercase hyphen-case.
+- On failure, run `doctor --json`; preserve transaction log and prior active theme.

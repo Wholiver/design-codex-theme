@@ -1,79 +1,56 @@
 # Runtime and installation reference
 
-Based on [HeiGeAi/heige-codex-skin-studio](https://github.com/HeiGeAi/heige-codex-skin-studio), MIT licensed. Bootstrap defaults to tested commit `770a03ce1f7a52fa2faa72062164e9d18cad4e27` from 2026-07-18.
+Read this file for installation, restore, status, or troubleshooting work.
 
-## Locations
+## Persistent locations
 
-| Purpose | macOS | Windows |
-|---|---|---|
-| This skill | Directory containing current `SKILL.md`; commonly `~/.codex/skills/design-codex-theme` | Directory containing current `SKILL.md`; commonly `%USERPROFILE%\.codex\skills\design-codex-theme` |
-| Runtime | `~/.codex/heige-codex-skin-studio` | `%USERPROFILE%\.codex\heige-codex-skin-studio` |
-| User themes | `~/Library/Application Support/HeiGeCodexSkinStudio/themes` | `%APPDATA%\HeiGeCodexSkinStudio\themes` |
-| State/logs | `~/Library/Application Support/HeiGeCodexSkinStudio` | `%APPDATA%\HeiGeCodexSkinStudio` |
+Runtime root on both platforms:
 
-Runtime uses loopback Chrome DevTools Protocol injection and does not alter Codex application files.
-
-## Theme schema
-
-Required manifest keys: `schemaVersion`, `id`, `name`, `hero`.
-
-This skill also writes:
-
-```json
-{
-  "appearance": "dark",
-  "previewFocus": { "x": 72, "y": 42 },
-  "thumbnailFocus": { "x": 72, "y": 42 },
-  "thumbnailZoom": 100,
-  "colors": {
-    "accent": "#8b5cf6",
-    "secondary": "#22d3ee",
-    "surface": "#111827",
-    "text": "#f8fafc"
-  }
-}
+```text
+~/.codex/design-codex-theme/
+├── active.json
+├── state.json
+├── transaction.json
+├── logs/controller.log
+├── runtime/
+└── themes/<theme-id>/
 ```
 
-`appearance`: `light`, `dark`, or `system`. Focus coordinates: integers 0–100. Thumbnail zoom: integer 100–400. Image must remain inside theme directory.
+Startup registration:
 
-## Stable lifecycle commands
+- macOS: `~/Library/LaunchAgents/com.wholiver.design-codex-theme.plist`
+- Windows: current-user Scheduled Task `DesignCodexTheme`
 
-Applying may restart Codex. Status is read-only.
+Runtime stores no credentials and makes no remote requests. It connects to loopback CDP only.
 
-macOS:
+## Lifecycle
+
+- `install`: validate and transactionally copy theme/runtime, activate theme, register controller, apply now or schedule restart.
+- `apply`: change `active.json`, wake controller, inject immediately when possible.
+- `restore`: remove current injection, clear active pointer, unregister controller, preserve library.
+- `uninstall --purge`: remove owned registration and entire runtime root. No implicit purge.
+
+Controller waits while Codex is closed. When Codex starts normally, it restarts Codex with loopback remote-debugging arguments, targets only `app://-/index.html`, injects one idempotent style element, then records verification.
+
+## Commands
 
 ```bash
-ROOT="$HOME/.codex/heige-codex-skin-studio"
-"$ROOT/scripts/lib/run-cli.zsh" status --port 9341
-"$ROOT/scripts/apply.command" "THEME_ID"
-"$ROOT/scripts/restore.command"
+node scripts/theme-cli.mjs install --theme <dir> --restart
+node scripts/theme-cli.mjs apply <id>
+node scripts/theme-cli.mjs list --json
+node scripts/theme-cli.mjs status --json
+node scripts/theme-cli.mjs restore --restart
+node scripts/theme-cli.mjs remove <id>
+node scripts/theme-cli.mjs doctor --json
+node scripts/theme-cli.mjs uninstall --purge
 ```
 
-Windows PowerShell:
+## Troubleshooting
 
-```powershell
-$root = "$HOME\.codex\heige-codex-skin-studio"
-& "$root\scripts\windows\controller.ps1" -Action status -Port 9341
-& "$root\scripts\windows\apply.ps1" -Theme "THEME_ID" -Port 9341
-& "$root\scripts\windows\restore.ps1" -Port 9341
-```
+- `EXTERNAL_CONTROLLER_CONFLICT`: another LaunchAgent, Scheduled Task, or running Codex process controls remote debugging. Do not delete it automatically. Ask user to disable it or explicitly approve migration.
+- `SERVICE_CONFLICT`: expected service name/path exists but ownership cannot be proven. Preserve it.
+- `THEME_INVALID`: fix reported schema, asset path, image signature, or size before installing.
+- `restart-scheduled`: installation succeeded; controller will finish after Codex restart.
+- `verified: false`: run `doctor --json`, inspect `logs/controller.log`, confirm Node 22 path still exists, then re-run `apply`.
 
-Use stable platform entrypoints for apply/restore. Do not invoke Node lifecycle commands directly on Windows.
-
-## Bootstrap behavior
-
-`bootstrap-runtime.mjs`:
-
-1. Reuses valid runtime already at target.
-2. Fetches pinned commit into a random temporary directory only when missing.
-3. Runs upstream installer with skip-apply flag.
-4. Validates installed CLI, then removes temporary checkout.
-
-Pass `--refresh` only when user requests update or diagnosis proves runtime broken. Pass `--ref main` only when intentionally testing latest upstream.
-
-## Recovery
-
-- Apply failure after creation: theme remains installed; rerun platform apply command with reported ID.
-- Validation failure: installer restores prior manifest and leaves upstream transactional theme intact.
-- User requests official look: run restore command, then status.
-- Runtime incompatibility: inspect status/doctor first; do not overwrite application files.
+Set `DESIGN_CODEX_APP` only when Codex uses a nonstandard application path. Do not change CDP host away from loopback.

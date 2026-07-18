@@ -1,54 +1,46 @@
 # Codex theme design guide
 
-## Brief to spec
+Use this guide only when creating or revising a theme.
 
-Infer values rather than asking routine questions.
+## Translate one sentence into a system
 
-| Brief cue | Appearance | Surface/Text | Image direction |
-|---|---|---|---|
-| midnight, cyberpunk, space, neon | dark | near-black / near-white | luminous subject, controlled glow |
-| paper, cream, studio, minimal | light | warm-white / charcoal | soft texture, restrained detail |
-| nature, calm, forest, ocean | system unless explicit | derive from dominant luminance | atmospheric landscape |
-| exact brand colors | user choice | preserve readable contrast | use exact accents sparingly |
+Extract five decisions without asking follow-up questions:
 
-Use short human name. Installer derives deterministic safe ID from name plus image hash.
+1. Mood: calm, playful, cinematic, minimal, retro, technical, organic.
+2. Appearance: dark or light. Choose from expected reading comfort, not background art alone.
+3. Anchor color: one accent used for focus, links, selected rows, and primary buttons.
+4. Surface model: opaque, translucent glass, paper, terminal, or layered cards.
+5. Imagery: none, background, small logo, decoration, or a combination.
 
-## Hero composition
-
-- Target 16:9, ideally 2560x1440.
-- Keep subject on right third. Preserve broad low-detail area across left and center for sidebar, editor, dialogs, and text.
-- Avoid fine high-contrast detail behind interface content.
-- Require: `no text, no watermark, no logo, no UI elements`.
-- For generated character/scene art, describe original visual traits rather than embedding interface elements.
-- Choose `previewFocus` at subject face/main object. Coordinates are integer percentages: top-left `0,0`, bottom-right `100,100`.
-- Usually reuse preview focus for thumbnail focus. Use thumbnail zoom 100 unless distant subject needs 120–180.
-
-Prompt skeleton:
-
-```text
-16:9 desktop wallpaper, [style and scene], [main subject] on right third,
-generous quiet negative space across left and center, [palette], [lighting],
-clean composition, no text, no watermark, no logo, no UI elements
-```
+Create short hyphen-case ID and human name. Avoid product names, trademarks, or pretending generated marks are official.
 
 ## Palette
 
-Provide all four colors:
+- Keep foreground/background contrast at least 4.5:1 for normal text.
+- Keep muted text readable; target at least 3:1 against primary surface.
+- Choose `accentForeground` for direct contrast on accent-filled buttons.
+- Separate `surface` and `surfaceElevated` enough for dialogs to remain visible.
+- Keep border quieter than text but visible over both surfaces.
+- Give success, warning, and danger distinct hues; do not derive all three from accent.
 
-- `accent`: primary actions and selected states.
-- `secondary`: restrained complementary highlight.
-- `surface`: panel/dialog base; avoid transparency in manifest.
-- `text`: high-contrast foreground.
+## Composition
 
-Require surface/text WCAG contrast ratio >= 4.5:1. For dark themes, keep surface roughly `#0b1020`–`#20283a` and text roughly `#e8eef8`–`#ffffff`. For light themes, keep surface roughly `#f3f5f8`–`#ffffff` and text roughly `#111827`–`#334155`. Exact user colors override style preference, never legibility.
+- Preserve center-left reading area. Put strong subjects near right third or outer edges.
+- Assume background uses `cover`; important content must survive 16:10 and 16:9 crops.
+- Prefer low-frequency detail behind code and conversations.
+- Use `backgroundDim` and translucent surfaces to control busy artwork.
+- Logo and decoration are optional fixed, pointer-free overlays. Keep opacity restrained.
+
+## When to generate an image
+
+Call Codex image generation with gpt-image-2 when user requests a recognizable subject, illustration, photographic atmosphere, mascot, landscape, object, or custom visual identity. Ask for no text, no watermark, no application UI, and safe edge cropping.
+
+Do not generate an image for gradients, plain colors, paper grain approximated by CSS, grids, terminal looks, or minimal glass themes. Structured CSS stays sharper and lighter.
 
 ## Quality check
 
-Before installation verify:
-
-- Image is local PNG/JPG/JPEG/WebP and under 8 MB.
-- No unwanted text, watermark, logo, baked UI, or unsafe crop.
-- Main subject remains visible at 16:9 cover crop.
-- Appearance matches image luminance.
-- Palette matches brief and passes contrast.
-
+- Theme JSON passes dry-run validation.
+- Images are local PNG/JPEG/WebP, valid by file signature, and no larger than 12 MB each.
+- Theme has no unintended text, watermark, fake Codex logo, or baked-in UI.
+- Foreground, muted text, accent buttons, inputs, dialogs, and code blocks remain readable.
+- Theme does not depend on theme-center menus or remote URLs.

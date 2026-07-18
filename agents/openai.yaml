@@ -1,4 +1,4 @@
 interface:
-  display_name: "Codex Theme Studio"
-  short_description: "Design and install Codex Desktop themes"
-  default_prompt: "Use $design-codex-theme to design and install a calm midnight-blue Codex Desktop theme."
+  display_name: "Design Codex Theme"
+  short_description: "Design and install custom Codex themes"
+  default_prompt: "Use $design-codex-theme to turn my visual idea into an installed Codex Desktop theme."

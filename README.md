@@ -2,193 +2,180 @@
 
 # Design Codex Theme
 
-一句话，为 Codex Desktop 设计并安装专属外观主题。  
-Design and install a personal Codex Desktop theme from one simple prompt.
+一句话，为 Codex 设计并安装完整外观主题<br>
+Design and install a complete Codex appearance from one sentence
 
-<p>
-  <a href="https://skills.sh/Wholiver/design-codex-theme/design-codex-theme"><img alt="skills.sh" src="https://img.shields.io/badge/skills.sh-available-111827?style=for-the-badge"></a>
-  <a href="https://github.com/Wholiver/design-codex-theme"><img alt="Platforms" src="https://img.shields.io/badge/platform-macOS%20%7C%20Windows-2563EB?style=for-the-badge"></a>
-  <a href="LICENSE"><img alt="License" src="https://img.shields.io/badge/license-Apache--2.0-0F766E?style=for-the-badge"></a>
-</p>
+[![Skill](https://img.shields.io/badge/Codex-Skill-111827?style=flat-square)](https://skills.sh/Wholiver/design-codex-theme/design-codex-theme)
+[![macOS](https://img.shields.io/badge/macOS-supported-334155?style=flat-square)](#支持范围)
+[![Windows](https://img.shields.io/badge/Windows-supported-334155?style=flat-square)](#支持范围)
+[![License](https://img.shields.io/badge/license-Apache--2.0-2563EB?style=flat-square)](LICENSE)
 
-[中文](#中文) · [English](#english)
+[中文](#中文) · [English](#english) · [安装](#安装) · [Install](#install)
 
 </div>
 
 ---
 
-<a id="中文"></a>
-
 ## 中文
 
-Design Codex Theme 是一个面向 Codex Desktop 的外观主题设计 Skill。你只需要描述想要的感觉，它会帮你补全配色、明暗模式、背景构图和视觉焦点；没有合适图片时，还可以调用图像生成能力制作背景，最后完成主题安装与应用。
+Design Codex Theme 是一个 Codex Skill。你只需描述想要的感觉，它会完成主题构思、配色、背景、面板、按钮、字体和安装。
+
+```text
+把 Codex 变成安静的深海鲸鱼主题，深青色微光，文字保持清晰。
+```
+
+需要插画或场景时，Codex 会调用 gpt-image-2 生成图片；简洁、渐变、纸张、终端等风格直接使用 CSS，不为图片而图片。
 
 ### 它能做什么
 
-| 你想做的事 | Skill 会完成的工作 |
-|---|---|
-| 用一句话设计主题 | 理解风格，选择配色、明暗模式和构图 |
-| 用自己的图片换肤 | 检查图片并制作成正式主题 |
-| 没有背景图片 | 调用图像生成能力创建适合 Codex 的桌面背景 |
-| 只想先看看方案 | 生成预览方案，不安装、不重启 Codex |
-| 恢复原生外观 | 使用安全恢复入口返回官方界面 |
+- 从一句话生成完整外观，而不只是换壁纸
+- 自动安装主题，并在 Codex 重启后继续生效
+- 保存多个命名主题，随时切换
+- 恢复 Codex 默认外观
+- 支持 macOS 和 Windows
+- 检查冲突、验证安装、失败时保留原主题
 
 ### 安装
 
-使用官方 Skills CLI：
+使用 Skills CLI：
 
 ```bash
-npx skills add https://github.com/Wholiver/design-codex-theme --skill design-codex-theme
+npx skills add Wholiver/design-codex-theme
 ```
 
-安装到 Codex 全局技能目录：
+全局安装到 Codex：
 
 ```bash
-npx skills add https://github.com/Wholiver/design-codex-theme \
-  --skill design-codex-theme \
-  --agent codex \
-  --global \
-  --yes
+npx skills add Wholiver/design-codex-theme --agent codex --global --yes
 ```
 
-### 使用示例
+也可以从 [skills.sh](https://skills.sh/Wholiver/design-codex-theme/design-codex-theme) 查看和安装。
 
-安装后，在 Codex 中直接描述主题：
+### 使用
+
+安装后直接对 Codex 说：
 
 ```text
-$design-codex-theme 给我做一个安静的深海蓝鲸主题，深色，蓝绿色微光。
+$design-codex-theme 设计一个暖白纸张主题，墨黑文字，少量钴蓝强调色。
 ```
 
-也可以更简单：
+也可以继续说：
 
 ```text
-把 Codex 做成温暖、干净的奶油纸张风格。
+列出我保存的 Codex 主题。
+切换到 midnight-paper。
+恢复 Codex 默认主题。
+彻底卸载主题运行时并删除所有主题。
 ```
 
-如果只想看方案：
+新主题默认直接设计并安装。首次启用前 Codex 会说明即将重启，然后自动完成重启与验证。
+
+### 它不会做什么
+
+这个项目不是主题中心，也不会安装 HeiGe 主题中心。它不会修改 Codex 应用文件、访问主题商店或从远程地址加载主题资源。
+
+安装后只留下一个轻量本地运行时，用来在 Codex 重启后重新应用当前主题。恢复默认主题时，该后台项会被注销；保存的主题仍会保留。
+
+### 支持范围
+
+| 项目 | 支持情况 |
+|---|---|
+| macOS | LaunchAgent，当前用户权限 |
+| Windows | Scheduled Task，当前用户权限 |
+| Linux | Codex Desktop 暂不支持 |
+| Node.js | 22 或更新版本 |
+| 图片 | PNG、JPEG、WebP，每张不超过 12 MB |
+
+<details>
+<summary>主题保存在哪里</summary>
 
 ```text
-设计一个午夜霓虹主题，先给我预览，不要安装。
+~/.codex/design-codex-theme/
+├── themes/
+├── runtime/
+├── active.json
+├── state.json
+└── logs/
 ```
 
-### 使用流程
-
-1. 读取你的一句话需求。
-2. 自动确定主题名称、配色、明暗模式和画面焦点。
-3. 使用你提供的图片，或生成新的背景图。
-4. 检查可读性和构图。
-5. 安装主题并按需应用。
-6. 确认主题状态，返回主题名称、颜色和安装位置。
-
-### 使用说明
-
-- 支持 macOS 和 Windows；macOS 经过更充分的实际验证。
-- 首次正式安装主题时，会按需安装经过固定版本验证的 [HeiGe Codex Skin Studio](https://github.com/HeiGeAi/heige-codex-skin-studio) 运行组件。
-- 应用或恢复主题时，Codex 可能正常关闭并重新打开，请先保存当前任务。
-- 主题通过本机回环连接应用，不修改 Codex 的 `app.asar`、签名或程序文件。
-- 本地图片不会被上传到公共图片托管服务。
-
-[返回顶部](#design-codex-theme)
+</details>
 
 ---
 
-<a id="english"></a>
-
 ## English
 
-Design Codex Theme is an appearance-design Skill for Codex Desktop. Describe the look you want in one sentence, and it can choose the palette, light or dark appearance, background composition, and visual focus. If no suitable image is available, it can create one with an image-generation tool, then install and apply the finished theme.
+Design Codex Theme is a Codex Skill. Describe a look in plain language and it handles theme direction, colors, background, panels, controls, typography, and installation.
 
-### What it can do
+```text
+Give Codex a quiet deep-ocean whale theme with a dark teal glow and clear text.
+```
 
-| What you want | What the Skill handles |
-|---|---|
-| Design from one sentence | Interprets the mood and chooses colors, appearance, and composition |
-| Turn your image into a theme | Checks the image and creates a formal installable theme |
-| Create a missing background | Uses image generation to make a Codex-friendly wallpaper |
-| Preview before installing | Produces a design plan without installation or restart |
-| Return to the native look | Uses the safe restore entry point |
+When artwork is useful, Codex calls gpt-image-2. Minimal, gradient, paper, grid, and terminal styles stay image-free and use structured CSS.
+
+### What it does
+
+- Creates a full appearance from one sentence, not only a wallpaper
+- Installs themes and keeps them active after Codex restarts
+- Saves multiple named themes and switches between them
+- Restores the official Codex appearance
+- Supports macOS and Windows
+- Detects controller conflicts, verifies injection, and preserves previous state on failure
 
 ### Install
 
-Use the official Skills CLI:
+Use Skills CLI:
 
 ```bash
-npx skills add https://github.com/Wholiver/design-codex-theme --skill design-codex-theme
+npx skills add Wholiver/design-codex-theme
 ```
 
 Install globally for Codex:
 
 ```bash
-npx skills add https://github.com/Wholiver/design-codex-theme \
-  --skill design-codex-theme \
-  --agent codex \
-  --global \
-  --yes
+npx skills add Wholiver/design-codex-theme --agent codex --global --yes
 ```
 
-### Examples
+You can also view and install it from [skills.sh](https://skills.sh/Wholiver/design-codex-theme/design-codex-theme).
 
-After installation, describe a theme directly in Codex:
+### Use
+
+After installation, tell Codex what you want:
 
 ```text
-$design-codex-theme Create a calm deep-ocean whale theme with a dark teal glow.
+$design-codex-theme Create a warm cream-paper theme with ink-black text and a small cobalt accent.
 ```
 
-You can keep it simple:
+Follow-up requests can stay natural:
 
 ```text
-Give Codex a warm, clean cream-paper appearance.
+List my saved Codex themes.
+Switch to midnight-paper.
+Restore the default Codex theme.
+Completely uninstall the theme runtime and delete every saved theme.
 ```
 
-For a preview only:
+New themes are designed and installed directly. Before first activation, Codex warns about one restart, then completes restart and verification automatically.
 
-```text
-Design a midnight neon theme, but preview it without installing.
-```
+### What it does not do
 
-### How it works
+This project is not a theme center and does not install HeiGe Codex Skin Studio. It does not patch Codex application files, contact a theme marketplace, or load theme resources from remote URLs.
 
-1. Reads your one-sentence brief.
-2. Chooses a name, palette, appearance, and focal point.
-3. Uses your image or creates a new background.
-4. Checks readability and composition.
-5. Installs and optionally applies the theme.
-6. Verifies the result and reports the theme details.
+Installation leaves a small local runtime that reapplies the active theme after Codex restarts. Restoring the default appearance unregisters that background item while preserving saved themes.
 
-### Notes
+### Compatibility
 
-- Supports macOS and Windows; macOS has received more real-device testing.
-- On first use, it can install a pinned and tested [HeiGe Codex Skin Studio](https://github.com/HeiGeAi/heige-codex-skin-studio) runtime when needed.
-- Applying or restoring a theme may close and reopen Codex normally. Save active work first.
-- Themes use a local loopback connection and do not modify Codex `app.asar`, signatures, or application files.
-- Local images are never uploaded to public image-hosting services.
-
-[Back to top](#design-codex-theme)
+| Item | Support |
+|---|---|
+| macOS | Current-user LaunchAgent |
+| Windows | Current-user Scheduled Task |
+| Linux | Not supported by Codex Desktop workflow |
+| Node.js | 22 or newer |
+| Images | PNG, JPEG, WebP; up to 12 MB each |
 
 ---
 
-<details>
-<summary>项目结构 / Project structure</summary>
+## Project notes
 
-```text
-design-codex-theme/
-├── SKILL.md
-├── agents/
-│   └── openai.yaml
-├── references/
-│   ├── design-guide.md
-│   └── runtime.md
-└── scripts/
-    ├── bootstrap-runtime.mjs
-    └── install-theme.mjs
-```
-
-</details>
-
-## Credits
-
-Theme runtime based on [HeiGeAi/heige-codex-skin-studio](https://github.com/HeiGeAi/heige-codex-skin-studio).
-
-## License
-
-Released under the [Apache License 2.0](LICENSE).
+- Project license: [Apache License 2.0](LICENSE)
+- Upstream research and MIT attribution: [Third-party notices](THIRD_PARTY_NOTICES.md)
+- This community project is not affiliated with or endorsed by OpenAI.
